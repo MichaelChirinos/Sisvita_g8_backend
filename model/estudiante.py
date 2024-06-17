@@ -16,7 +16,7 @@ class Estudiante(db.Model):
         
         self.codigo_estudiante = codigo_estudiante
         
-        #cambios en la parte de estudiante, se le quitara
+        
 
         
         
