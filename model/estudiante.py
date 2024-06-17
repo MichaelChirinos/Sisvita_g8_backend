@@ -12,6 +12,8 @@ class Estudiante(db.Model):
 
     def __init__(self, id_estudiante, id_usuario, codigo_estudiante):
         self.id_estudiante = id_estudiante
+
         self.id_usuario = id_usuario
+
         self.codigo_estudiante = codigo_estudiante 
-#dddd 
+#Se realizaron cambios 
