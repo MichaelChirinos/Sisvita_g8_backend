@@ -16,4 +16,4 @@ class Estudiante(db.Model):
         
         
         self.codigo_estudiante = codigo_estudiante
-#Voy a solucionar los problemas
+#No solucionaste
