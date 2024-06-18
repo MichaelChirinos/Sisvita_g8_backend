@@ -14,3 +14,4 @@ class Estudiante(db.Model):
         self.id_estudiante = id_estudiante
         self.id_usuario = id_usuario
         self.codigo_estudiante = codigo_estudiante
+                
