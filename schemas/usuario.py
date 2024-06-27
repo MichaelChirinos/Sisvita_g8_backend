@@ -1,16 +1,22 @@
 from utils.ma import ma
+from model.usuario import Usuario
 from marshmallow import fields
+from schemas.persona import PersonaSchema
 
 class UsuarioSchema(ma.Schema):
-    id_usuario = fields.Integer()
-    nombre = fields.String()
-    apellido = fields.String()
-    dni = fields.Integer()
-    telefono = fields.Integer()
-    correo = fields.String()
-    clave = fields.String()
-    fecha_nacimiento = fields.Date()
-    sexo = fields.String()
-    
+    class Meta:
+        model = Usuario
+        fields = (
+            'id_usuario',
+            'id_persona',
+            'correo',
+            'clave',
+            'is_admin',
+            'persona'
+        )
+
+    persona = fields.Nested(PersonaSchema)
+
 usuario_schema = UsuarioSchema()
 usuarios_schema = UsuarioSchema(many=True)
+

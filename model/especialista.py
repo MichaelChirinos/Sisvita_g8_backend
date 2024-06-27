@@ -1,19 +1,16 @@
 from utils.db import db
-
 from dataclasses import dataclass
 
 @dataclass
 class Especialista(db.Model):
     __tablename__ = 'especialista'
-    id_especialista = db.Column(db.Integer, primary_key=True)
-    id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'))
-    especialidad = db.Column(db.String)
-    colegiado = db.Column(db.Integer)
+    id_especialista = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    id_persona = db.Column(db.Integer, db.ForeignKey('persona.id_persona'))
+    colegiatura = db.Column(db.String(15))
 
-    usuario = db.relationship('Usuario', backref='especialista')    
+    persona = db.relationship('Persona', backref='especialista', lazy=True)
 
-    def __init__(self, id_especialista, id_usuario, especialidad,colegiado):
+    def __init__(self, id_especialista,id_persona, colegiatura):
         self.id_especialista = id_especialista
-        self.id_usuario = id_usuario
-        self.especialidad = especialidad
-        self.colegiado = colegiado
+        self.id_persona = id_persona
+        self.colegiatura = colegiatura

@@ -1,7 +1,13 @@
 from flask import Blueprint, request, jsonify, make_response
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from model.usuario import Usuario
+from model.persona import Persona 
+from model.paciente import Paciente
+from model.especialista import Especialista
 from utils.db import db
-from schemas.usuario import usuario_schema, usuarios_schema
+from schemas.usuario import usuario_schema,usuarios_schema
+from schemas.persona import PersonaSchema
+import bcrypt
 
 usuario_bp = Blueprint('usuario', __name__)
 
@@ -15,24 +21,21 @@ def getMensaje():
 @usuario_bp.route('/usuario/v1/agregar', methods=['POST'])
 def crear_usuario():
     body = request.get_json()
-    nombre = body.get('nombre')
-    apellido = body.get("apellido")
-    dni = body.get("dni")
-    telefono = body.get("telefono")
+    id_usuario = request.json.get("id_usuario")
+    id_persona = request.json.get("id_persona")
     correo = body.get("correo")
     clave = body.get("clave")
-    fecha_nacimiento = body.get("fecha_nacimiento")
-    sexo = body.get("sexo")
+    is_admin = body.get("is_admin")
+
+    # Hashing de la contraseña
+    hashed_clave = bcrypt.hashpw(clave.encode('utf-8'), bcrypt.gensalt())
 
     usuario = Usuario(
-        nombre=nombre,
-        apellido=apellido,
-        dni=dni,
-        telefono=telefono,
+        id_usuario=id_usuario,
+        id_persona=id_persona,
         correo=correo,
-        clave=clave,  
-        fecha_nacimiento=fecha_nacimiento,
-        sexo=sexo
+        clave=hashed_clave.decode('utf-8'),  # Almacenar como cadena
+        is_admin=is_admin
     )
 
     db.session.add(usuario)
@@ -62,71 +65,39 @@ def listar_usuarios():
 
     return make_response(jsonify(data), 200)
 
-# Obtener un usuario por su ID
-@usuario_bp.route('/usuario/v1/<int:id>', methods=['GET'])
-def obtener_usuario(id):
-    usuario = Usuario.query.get(id)
-
-    if not usuario:
-        data = {
-            'message': 'Usuario no encontrado',
-            'status': 404
-        }
-
-        return make_response(jsonify(data), 404)
-
-    result = usuario_schema.dump(usuario)
-
-    data = {
-        'message': 'Usuario recuperado correctamente',
-        'status': 200,
-        'data': result
-    }
-
-    return make_response(jsonify(data), 200)
-
 # Actualizar un usuario por su ID
 @usuario_bp.route('/usuario/v1/actualizar', methods=['POST'])
 def actualizar_usuario():
     body = request.get_json()
     id_usuario = body.get('id_usuario')
-    nombre = body.get('nombre')
-    apellido = body.get("apellido")
-    dni = body.get("dni")
-    telefono = body.get("telefono")
     correo = body.get("correo")
     clave = body.get("clave")
-    fecha_nacimiento = body.get("fecha_nacimiento")
-    sexo = body.get("sexo")
+    is_admin = body.get("is_admin")
 
     usuario = Usuario.query.get(id_usuario)
 
     if usuario is None:
-        return jsonify({"error": f"Persona with id_persona {id_usuario} not found"}), 404
+        return jsonify({"error": f"Usuario con id {id_usuario} no encontrado"}), 404
 
-    usuario.nombre = nombre
-    usuario.apellido = apellido
-    usuario.dni = dni
-    usuario.telefono = telefono
     usuario.correo = correo
+    usuario.is_admin = is_admin
 
-    # Actualizar la contraseña sin hashing
+    # Actualizar la contraseña con hashing
     if clave:
-        usuario.clave = clave
-
-    usuario.fecha_nacimiento = fecha_nacimiento
-    usuario.sexo = sexo
+        hashed_clave = bcrypt.hashpw(clave.encode('utf-8'), bcrypt.gensalt())
+        usuario.clave = hashed_clave.decode('utf-8')
 
     db.session.commit()
 
     result = usuario_schema.dump(usuario)
-    
+
     data = {
         'message': 'Usuario actualizado correctamente',
         'status': 202,
         'data': result
     }
     return make_response(jsonify(data), 202)
+
 
 # Eliminar un usuario por su ID
 @usuario_bp.route('/usuario/v1/eliminar', methods=['DELETE'])
@@ -152,9 +123,9 @@ def eliminar_usuario():
 
     return jsonify(result), 200
 
-# Login de usuario
-@usuario_bp.route('/usuario/v1/login-persona', methods=['POST'])
-def login():
+# Login de usuario para paciente
+@usuario_bp.route('/usuario/v1/login/paciente', methods=['POST'])
+def login_paciente():
     body = request.get_json()
     correo = body.get('correo')
     clave = body.get('clave')
@@ -164,19 +135,87 @@ def login():
 
     usuario = Usuario.query.filter_by(correo=correo).first()
 
-    # Comparar la contraseña en texto claro
-    if not usuario or usuario.clave != clave:
+    if not usuario or not bcrypt.checkpw(clave.encode('utf-8'), usuario.clave.encode('utf-8')):
         return make_response(jsonify({"message": "Correo o clave incorrecta"}), 401)
 
-    # Aquí se devuelve el id_usuario junto con el mensaje de éxito
+    # Verificar si el usuario está asociado con un paciente
+    paciente = Paciente.query.filter_by(id_persona=usuario.id_persona).first()
+    if not paciente:
+        return make_response(jsonify({"message": "El usuario no está registrado como paciente"}), 403)
+
+    persona = usuario.persona
+
+    access_token = create_access_token(identity=usuario.id_usuario, additional_claims={
+        'correo': usuario.correo,
+        'id_persona': persona.id_persona,
+        'nombre': persona.nombre,
+        'apellido_paterno': persona.apellido_paterno,
+        'apellido_materno': persona.apellido_materno,
+        'documento': persona.documento,
+        'telefono': persona.telefono,
+        'fecha_nacimiento': persona.fecha_nacimiento
+    })
+
     result = usuario_schema.dump(usuario)
+    persona_schema = PersonaSchema()  
+    persona_data = persona_schema.dump(persona)
 
     data = {
         'message': 'Login exitoso',
         'status': 200,
         'data': {
-            'id_usuario': usuario.id_usuario,
-            'usuario': result
+            'usuario': result,
+            'persona': persona_data,
+            'access_token': access_token
+        }
+    }
+
+    return make_response(jsonify(data), 200)
+
+# Login de usuario para especialista
+@usuario_bp.route('/usuario/v1/login/especialista', methods=['POST'])
+def login_especialista():
+    body = request.get_json()
+    correo = body.get('correo')
+    clave = body.get('clave')
+
+    if not correo or not clave:
+        return make_response(jsonify({"message": "Faltan el correo o la clave"}), 400)
+
+    usuario = Usuario.query.filter_by(correo=correo).first()
+
+    if not usuario or not bcrypt.checkpw(clave.encode('utf-8'), usuario.clave.encode('utf-8')):
+        return make_response(jsonify({"message": "Correo o clave incorrecta"}), 401)
+
+    # Verificar si el usuario está asociado con un especialista
+    especialista = Especialista.query.filter_by(id_persona=usuario.id_persona).first()
+    if not especialista:
+        return make_response(jsonify({"message": "El usuario no está registrado como especialista"}), 403)
+
+    persona = usuario.persona
+
+    access_token = create_access_token(identity=usuario.id_usuario, additional_claims={
+        'correo': usuario.correo,
+        'id_persona': persona.id_persona,
+        'nombre': persona.nombre,
+        'apellido_paterno': persona.apellido_paterno,
+        'apellido_materno': persona.apellido_materno,
+        'documento': persona.documento,
+        'telefono': persona.telefono,
+        'fecha_nacimiento': persona.fecha_nacimiento
+    })
+
+    result = usuario_schema.dump(usuario)
+    persona_schema = PersonaSchema()  
+    persona_data = persona_schema.dump(persona)
+
+    data = {
+        'message': 'Login exitoso',
+        'status': 200,
+        'data': {
+            'usuario': result,
+            'persona': persona_data,
+            'access_token': access_token
         }
     }
 
