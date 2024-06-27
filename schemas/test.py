@@ -6,6 +6,10 @@ from schemas.escala import EscalaSchema
 from schemas.paciente import PacienteSchema
 from schemas.tratamiento import TratamientoSchema  
 from schemas.medida import MedidaSchema
+<<<<<<< HEAD
+=======
+
+>>>>>>> baf12906ccd0196cebf65f37d6a3f5182101a291
 
 class TestSchema(ma.Schema):
     class Meta:
@@ -29,11 +33,16 @@ class TestSchema(ma.Schema):
             'medida'
         )
 
+
     tipo_test = fields.Nested(TipoTestSchema)
     escala = fields.Nested(EscalaSchema)
     paciente = fields.Nested(PacienteSchema)
     tratamiento = fields.Nested(TratamientoSchema)  
     medida = fields.Nested(MedidaSchema)
+<<<<<<< HEAD
+=======
+
+>>>>>>> baf12906ccd0196cebf65f37d6a3f5182101a291
 
 Test_schema = TestSchema()
 Tests_schema = TestSchema(many=True)
