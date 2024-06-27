@@ -148,6 +148,7 @@ def login_paciente():
     access_token = create_access_token(identity=usuario.id_usuario, additional_claims={
         'correo': usuario.correo,
         'id_persona': persona.id_persona,
+        'id_paciente': paciente.id_paciente,  # Incluye id_paciente en las claims
         'nombre': persona.nombre,
         'apellido_paterno': persona.apellido_paterno,
         'apellido_materno': persona.apellido_materno,
@@ -157,7 +158,7 @@ def login_paciente():
     })
 
     result = usuario_schema.dump(usuario)
-    persona_schema = PersonaSchema()  
+    persona_schema = PersonaSchema()
     persona_data = persona_schema.dump(persona)
 
     data = {
@@ -197,6 +198,7 @@ def login_especialista():
     access_token = create_access_token(identity=usuario.id_usuario, additional_claims={
         'correo': usuario.correo,
         'id_persona': persona.id_persona,
+        'id_especialista': especialista.id_especialista,
         'nombre': persona.nombre,
         'apellido_paterno': persona.apellido_paterno,
         'apellido_materno': persona.apellido_materno,

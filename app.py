@@ -13,8 +13,10 @@ from services.historia_clinica import historia_clinica
 from services.tipo_test import tipo_test
 from services.pregunta import pregunta
 from services.escala import escala
-from services.evaluacion import evaluacion
 from services.test import test
+from services.semaforo import semaforo
+from services.medida import medida
+from services.tratamiento import tratamiento
 from services.alternativa import alternativa
 
 app = Flask(__name__)
@@ -43,7 +45,9 @@ app.register_blueprint(tipo_test)
 app.register_blueprint(pregunta)
 app.register_blueprint(escala)
 app.register_blueprint(test)
-app.register_blueprint(evaluacion)
+app.register_blueprint(semaforo)
+app.register_blueprint(medida)
+app.register_blueprint(tratamiento)
 app.register_blueprint(alternativa)
 
 # Crea las tablas si no existen

@@ -8,7 +8,7 @@ class Alternativa(db.Model):
     id_alternativa = db.Column(db.Integer, primary_key=True)
     id_tipo_test  = db.Column(db.Integer, db.ForeignKey('tipo_test.id_tipo_test'))
     descripcion  = db.Column(db.String(255))
-    puntaje = db.Column(db.String(3))
+    puntaje = db.Column(db.Integer)
 
     tipo_test = db.relationship('TipoTest', backref='alternativa')
 

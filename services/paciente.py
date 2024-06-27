@@ -39,9 +39,9 @@ def getPacientes():
 
     return make_response(jsonify(data), 200)
 
-@paciente.route('/paciente/v1/<int:id>', methods=['GET'])
-def getOne(id):
-    paciente = Paciente.query.get(id)
+@paciente.route('/paciente/v1/<int:id_paciente>', methods=['GET'])
+def getOne(id_paciente):
+    paciente = Paciente.query.get(id_paciente)
 
     if not paciente:
         data = {

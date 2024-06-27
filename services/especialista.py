@@ -39,6 +39,27 @@ def getEspecialista():
     
     return make_response(jsonify(data), 200)
 
+@especialista.route('/especialista/v1/<int:id>', methods=['GET'])
+def getOne(id):
+    especialista = Especialista.query.get(id)
+
+    if not especialista:
+        data = {
+            'message': 'Especialista no encontrado',
+            'status': 404
+        }
+
+        return make_response(jsonify(data), 404)
+    
+    result = especialista_schema.dump(especialista)
+    data = {
+        'message': 'Paciente recuperado correctamente',
+        'status': 200,
+        'data': result
+    }
+
+    return make_response(jsonify(data), 200)
+
 @especialista.route('/especialista/v1/<int:id>', methods=['PUT'])
 def updateOne(id):
 
