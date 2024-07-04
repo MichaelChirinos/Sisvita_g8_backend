@@ -18,7 +18,7 @@ def listar_personas():
     result = personas_schema.dump(all_personas)
 
     data = {
-        'message': 'Personas recuperados correctamente',
+        'message': 'Personas recuperadas correctamente',
         'status': 200,
         'data': result
     }
@@ -37,6 +37,7 @@ def crear_persona():
     documento = body.get("documento")
     telefono = body.get("telefono")
     fecha_nacimiento = body.get("fecha_nacimiento")
+    ubigeo = body.get("ubigeo")
 
     persona = Persona(
         id_persona=id_persona,
@@ -45,8 +46,9 @@ def crear_persona():
         apellido_materno=apellido_materno,
         tipo_documento=tipo_documento,
         documento=documento,
-        telefono =telefono,
-        fecha_nacimiento=fecha_nacimiento
+        telefono=telefono,
+        fecha_nacimiento=fecha_nacimiento,
+        ubigeo=ubigeo
     )
 
     db.session.add(persona)
@@ -55,14 +57,14 @@ def crear_persona():
     result = persona_schema.dump(persona)
 
     data = {
-        'message': 'Persona creado correctamente',
+        'message': 'Persona creada correctamente',
         'status': 201,
         'data': result
     }
 
     return make_response(jsonify(data), 201)
 
-# Actualizar un usuario por su ID
+# Actualizar una persona por su ID
 @persona_bp.route('/persona/v1/actualizar', methods=['POST'])
 def actualizar_persona():
     body = request.get_json()
@@ -72,30 +74,32 @@ def actualizar_persona():
     apellido_materno = body.get("apellido_materno")
     documento = body.get("documento")
     telefono = body.get("telefono")
+    ubigeo = body.get("ubigeo")
 
     persona = Persona.query.get(id_persona)
 
     if persona is None:
-        return jsonify({"error": f"Persona con id_persona {id_persona} no encontrado"}), 404
+        return jsonify({"error": f"Persona con id_persona {id_persona} no encontrada"}), 404
 
     persona.nombre = nombre
     persona.apellido_paterno = apellido_paterno
     persona.apellido_materno = apellido_materno
     persona.documento = documento
     persona.telefono = telefono
+    persona.ubigeo = ubigeo
 
     db.session.commit()
 
     result = persona_schema.dump(persona)
     
     data = {
-        'message': 'Persona actualizado correctamente',
+        'message': 'Persona actualizada correctamente',
         'status': 202,
         'data': result
     }
     return make_response(jsonify(data), 202)
 
-# Eliminar un usuario por su ID
+# Eliminar una persona por su ID
 @persona_bp.route('/persona/v1/eliminar', methods=['DELETE'])
 def eliminar_persona():
     result = {}
@@ -103,19 +107,18 @@ def eliminar_persona():
     id_persona = body.get('id_persona')
 
     if id_persona is None:
-        return jsonify({"error": "Missing 'id_usuario' in request body"}), 400
+        return jsonify({"error": "Missing 'id_persona' in request body"}), 400
 
     persona = Persona.query.get(id_persona)
 
     if persona is None:
-        return jsonify({"error": f"Persona with id_persona {id_persona} not found"}), 404
+        return jsonify({"error": f"Persona con id_persona {id_persona} no encontrada"}), 404
 
     db.session.delete(persona)
     db.session.commit()
 
     result["data"] = {}
     result["status_code"] = 200
-    result["msg"] = "Se elimino la persona sin inconvenientes"
+    result["msg"] = "Se eliminó la persona sin inconvenientes"
 
     return jsonify(result), 200
-

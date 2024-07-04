@@ -154,7 +154,8 @@ def login_paciente():
         'apellido_materno': persona.apellido_materno,
         'documento': persona.documento,
         'telefono': persona.telefono,
-        'fecha_nacimiento': persona.fecha_nacimiento
+        'fecha_nacimiento': persona.fecha_nacimiento,
+        'ubigeo' : persona.ubigeo
     })
 
     result = usuario_schema.dump(usuario)

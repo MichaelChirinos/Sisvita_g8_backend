@@ -86,14 +86,14 @@ def updatePaciente(id):
     result = paciente_schema.dump(nuevo_paciente)
 
     data = {
-        'message': 'Estudiante actualizado correctamente',
+        'message': 'Paciente actualizado correctamente',
         'status': 200,
         'data': result
     }
 
     return make_response(jsonify(data), 200)
 
-@paciente.route('/estudiante/v1/<int:id>', methods=['DELETE'])
+@paciente.route('/paciente/v1/<int:id>', methods=['DELETE'])
 def deleteOne(id):
 
     paciente = Paciente.query.get(id)

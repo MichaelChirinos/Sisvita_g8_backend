@@ -7,9 +7,7 @@ from config import DATABASE_CONNECTION
 from services.usuario import usuario_bp
 from services.paciente import paciente
 from services.especialista import especialista
-from services.notificacion import notificacion
 from services.persona import persona_bp
-from services.historia_clinica import historia_clinica
 from services.tipo_test import tipo_test
 from services.pregunta import pregunta
 from services.escala import escala
@@ -18,6 +16,8 @@ from services.semaforo import semaforo
 from services.medida import medida
 from services.tratamiento import tratamiento
 from services.alternativa import alternativa
+from services.ubicacion import ubicacion_bp
+from services.heatmap import heatmap_bp
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
@@ -39,8 +39,6 @@ app.register_blueprint(persona_bp)
 app.register_blueprint(especialista)
 app.register_blueprint(usuario_bp)
 app.register_blueprint(paciente)
-app.register_blueprint(notificacion)
-app.register_blueprint(historia_clinica)
 app.register_blueprint(tipo_test)
 app.register_blueprint(pregunta)
 app.register_blueprint(escala)
@@ -49,6 +47,8 @@ app.register_blueprint(semaforo)
 app.register_blueprint(medida)
 app.register_blueprint(tratamiento)
 app.register_blueprint(alternativa)
+app.register_blueprint(ubicacion_bp)
+app.register_blueprint(heatmap_bp)
 
 # Crea las tablas si no existen
 with app.app_context():

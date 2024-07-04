@@ -3,7 +3,6 @@ from datetime import date
 from dataclasses import dataclass
 from sqlalchemy.dialects.postgresql import JSON
 
-
 @dataclass
 class Test(db.Model):
     __tablename__ = 'test'
@@ -18,18 +17,10 @@ class Test(db.Model):
     observacion = db.Column(db.Text, nullable=True)
     confirmar = db.Column(db.Boolean, default=False, nullable=True)
     suma_respuestas = db.Column(db.Integer)
-<<<<<<< HEAD
-=======
-
->>>>>>> baf12906ccd0196cebf65f37d6a3f5182101a291
 
     tipo_test = db.relationship('TipoTest', backref='tests')
     tratamiento = db.relationship('Tratamiento', backref='tests')
 
-<<<<<<< HEAD
-=======
-
->>>>>>> baf12906ccd0196cebf65f37d6a3f5182101a291
     def __init__(self, id_tipo_test,id_paciente,id_rango_escala,id_tratamiento,id_medida, fecha_realizacion,respuestas,suma_respuestas,observacion,confirmar):
         self.id_tipo_test = id_tipo_test
         self.id_paciente = id_paciente

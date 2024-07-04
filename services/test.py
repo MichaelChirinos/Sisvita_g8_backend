@@ -90,10 +90,12 @@ def listar_tests():
         tratamiento = Tratamiento.query.get(t.id_tratamiento)
         medida = Medida.query.get(t.id_medida)
         nombre_completo = f"{persona.nombre} {persona.apellido_paterno} {persona.apellido_materno}" if persona else 'Desconocido'
+        documento = persona.documento if persona else 'Desconocido'
         result.append({
             'id_test': t.id_test,
             'id_tipo_test': t.id_tipo_test,
             'nombre_paciente': nombre_completo,
+            'documento_paciente': documento,
             'nombre_tipo_test': tipo_test.nombre if tipo_test else 'Desconocido',
             'fecha_realizacion': t.fecha_realizacion,
             'descripcion': escala.descripcion if escala else 'No disponible',
@@ -112,7 +114,6 @@ def listar_tests():
     }
 
     return make_response(jsonify(data), 200)
-
 
 # Actualizar un test
 @test.route('/test/v1/actualizar/<int:id_test>', methods=['PUT'])
@@ -182,6 +183,7 @@ def listar_tests_por_paciente(id_paciente):
             'suma_respuestas': t.suma_respuestas,
             'tratamiento': tratamiento.descripcion if tratamiento else 'No disponible',
             'medida' : medida.descripcion if medida else 'No disponible',
+            'observacion': t.observacion,
             'confirmar': t.confirmar
         })
     
@@ -206,11 +208,13 @@ def detalle_test(id_test):
         escala = Escala.query.get(t.id_rango_escala)
         tratamiento = Tratamiento.query.get(t.id_tratamiento)
         medida = Medida.query.get(t.id_medida)
+        documento = persona.documento if persona else 'Desconocido'
         nombre_completo = f"{persona.nombre} {persona.apellido_paterno} {persona.apellido_materno}" if persona else 'Desconocido'
         result.append({
             'id_test': t.id_test,
             'id_tipo_test': t.id_tipo_test,
             'nombre_paciente': nombre_completo,
+            'documento_paciente': documento,
             'nombre_tipo_test': tipo_test.nombre if tipo_test else 'Desconocido',
             'fecha_realizacion': t.fecha_realizacion,
             'descripcion': escala.descripcion if escala else 'No disponible',
